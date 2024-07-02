@@ -40,8 +40,9 @@ ElliposoidAndLogSumExp3dPrb::ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipso
 
         scs_stgs_ = new ScsSettings();
         scs_set_default_settings(scs_stgs_);
-        scs_stgs_->eps_abs = 1e-5;
-        scs_stgs_->eps_rel = 1e-5;
+        scs_stgs_->normalize = 1;
+        scs_stgs_->eps_abs = 1e-4;
+        scs_stgs_->eps_rel = 1e-4;
         scs_stgs_->verbose = 0;
         scs_stgs_->max_iters = 10000;
         scs_stgs_->time_limit_secs = 0.1;
@@ -168,12 +169,13 @@ std::tuple<int, xt::xarray<double>> ElliposoidAndLogSumExp3dPrb::solve_scs_prb(c
 
 std::tuple<double, xt::xarray<double>, xt::xarray<double>> ElliposoidAndLogSumExp3dPrb::solve(
     const xt::xarray<double>& d, const xt::xarray<double>& q){
+    
     int exitflag;
     xt::xarray<double> p;
     std::tie(exitflag, p) = solve_scs_prb(d, q);
     
     if (exitflag != 1){
-        return std::make_tuple(0, xt::zeros<double>({7}), xt::zeros<double>({7, 7}));
+        return std::make_tuple(500, xt::zeros<double>({7}), xt::zeros<double>({7, 7}));
     }
 
     double alpha;
@@ -188,37 +190,3 @@ std::tuple<double, xt::xarray<double>, xt::xarray<double>> ElliposoidAndLogSumEx
     return std::make_tuple(alpha, alpha_dx, alpha_dxdx);
 }
 
-// std::tuple<double, xt::xarray<double>, xt::xarray<double>> ElliposoidAndLogSumExp3dPrb::solve(
-//     const xt::xarray<double>& d, const xt::xarray<double>& q){
-    
-//     auto start_total = std::chrono::high_resolution_clock::now();
-    
-//     auto start_scs = std::chrono::high_resolution_clock::now();
-//     xt::xarray<double> p = solve_scs_prb(d, q);
-//     auto end_scs = std::chrono::high_resolution_clock::now();
-//     std::chrono::duration<double> diff_scs = end_scs - start_scs;
-//     std::cout << "solve_scs_prb took: " << diff_scs.count() << " s\n";
-    
-//     auto start_init = std::chrono::high_resolution_clock::now();
-//     double alpha;
-//     xt::xarray<double> alpha_dx;
-//     xt::xarray<double> alpha_dxdx;
-//     xt::xarray<double> d2 = xt::zeros<double>({3});
-//     xt::xarray<double> q2 = xt::zeros<double>({4});
-//     q2(3) = 1;
-//     auto end_init = std::chrono::high_resolution_clock::now();
-//     std::chrono::duration<double> diff_init = end_init - start_init;
-//     std::cout << "Initialization took: " << diff_init.count() << " s\n";
-
-//     auto start_gh = std::chrono::high_resolution_clock::now();
-//     std::tie(alpha, alpha_dx, alpha_dxdx) = getGradientAndHessian3d(p, SF_rob_, d, q, SF_obs_, d2, q2);
-//     auto end_gh = std::chrono::high_resolution_clock::now();
-//     std::chrono::duration<double> diff_gh = end_gh - start_gh;
-//     std::cout << "getGradientAndHessian3d took: " << diff_gh.count() << " s\n";
-    
-//     auto end_total = std::chrono::high_resolution_clock::now();
-//     std::chrono::duration<double> diff_total = end_total - start_total;
-//     std::cout << "Total solve function took: " << diff_total.count() << " s\n";
-
-//     return std::make_tuple(alpha, alpha_dx, alpha_dxdx);
-// }

@@ -7,7 +7,8 @@
 #include "elliposoidAndLogSumExp3dPrb.hpp"
 #include "problem3dCollection.hpp"
 
-int main(int argc, char* argv[]) {
+// int main(int argc, char* argv[]) {
+int main() {
     xt::xarray<double> Q_d = xt::eye<double>(3);
     xt::xarray<double> mu_d {4, 1, 1};
     xt::xarray<double> A_d {{1,0,0},
@@ -25,7 +26,7 @@ int main(int argc, char* argv[]) {
 
     xt::xarray<double> q {0,0,0,1};
     
-    int n_problems = 20;
+    int n_problems = 12;
     int n_threads = 9;
     std::shared_ptr<Problem3dCollection> col = std::make_shared<Problem3dCollection>(n_threads);
     for (int i=0; i<n_problems; ++i){
@@ -42,7 +43,9 @@ int main(int argc, char* argv[]) {
         all_q(i, 3) = 1;
     }
 
-    int N = std::stoi(argv[1]);
+    // int N = std::stoi(argv[1]);
+    int N = 10;
+
     auto start = std::chrono::high_resolution_clock::now();
     for (int i=0; i<N; ++i){
         std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>> res = col->solve_all(all_d, all_q);
