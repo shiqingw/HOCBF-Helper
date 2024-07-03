@@ -1,7 +1,8 @@
 #include "elliposoidAndLogSumExp3dPrb.hpp"
 
 ElliposoidAndLogSumExp3dPrb::ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF1, 
-    std::shared_ptr<LogSumExp3d> SF2) : SF_rob_(SF1), SF_obs_(SF2) {
+    std::shared_ptr<LogSumExp3d> SF2, const xt::xarray<double>& obs_characteristic_points) :
+    SF_rob_(SF1), SF_obs_(SF2), obs_characteristic_points_(obs_characteristic_points) {
 
         p_sol_ = xt::zeros<double>({dim_p_});
         xt::xarray<double> A_d = SF_obs_->A;
@@ -76,7 +77,7 @@ ElliposoidAndLogSumExp3dPrb::~ElliposoidAndLogSumExp3dPrb(){
     delete scs_sol_;
 }
 
-std::tuple<int, xt::xarray<double>> ElliposoidAndLogSumExp3dPrb::solve_scs_prb(const xt::xarray<double>& d, 
+std::tuple<int, xt::xarray<double>> ElliposoidAndLogSumExp3dPrb::solveSCSPrb(const xt::xarray<double>& d, 
     const xt::xarray<double>& q){
 
     xt::xarray<double> Q_d = SF_rob_->getWorldQuadraticCoefficient(q);
@@ -164,18 +165,27 @@ std::tuple<int, xt::xarray<double>> ElliposoidAndLogSumExp3dPrb::solve_scs_prb(c
 
         return std::make_tuple(exitflag, xt::zeros<double>({dim_p_}));
     }
-
 }
 
 std::tuple<double, xt::xarray<double>, xt::xarray<double>> ElliposoidAndLogSumExp3dPrb::solve(
     const xt::xarray<double>& d, const xt::xarray<double>& q){
     
+    // If the distance from d to each obs_characteristic_point is greater than 10 meters, return directly
+    double min_dist = std::numeric_limits<double>::infinity();
+    for (int i=0; i<obs_characteristic_points_.shape()[0]; ++i){
+        double dist = xt::linalg::norm(xt::view(obs_characteristic_points_, i, xt::all()) - d);
+        min_dist = std::min(min_dist, dist);
+    }
+    if (min_dist > 10){
+        return std::make_tuple(0, xt::zeros<double>({7}), xt::zeros<double>({7, 7}));
+    }
+    
     int exitflag;
     xt::xarray<double> p;
-    std::tie(exitflag, p) = solve_scs_prb(d, q);
+    std::tie(exitflag, p) = solveSCSPrb(d, q);
     
     if (exitflag != 1){
-        return std::make_tuple(500, xt::zeros<double>({7}), xt::zeros<double>({7, 7}));
+        return std::make_tuple(0, xt::zeros<double>({7}), xt::zeros<double>({7, 7}));
     }
 
     double alpha;
@@ -189,4 +199,3 @@ std::tuple<double, xt::xarray<double>, xt::xarray<double>> ElliposoidAndLogSumEx
 
     return std::make_tuple(alpha, alpha_dx, alpha_dxdx);
 }
-

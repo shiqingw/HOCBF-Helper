@@ -62,7 +62,10 @@
         "future": "cpp",
         "thread": "cpp",
         "dense": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "__tree": "cpp",
+        "iomanip": "cpp",
+        "map": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang++"
 }

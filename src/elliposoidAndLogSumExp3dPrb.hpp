@@ -3,6 +3,7 @@
 #include <memory>
 #include <tuple>
 #include <chrono>
+#include <limits>
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Sparse>
 #include <xtensor/xarray.hpp>
@@ -18,6 +19,8 @@ class ElliposoidAndLogSumExp3dPrb: public Problem3d{
 public:
     std::shared_ptr<Ellipsoid3d> SF_rob_;
     std::shared_ptr<LogSumExp3d> SF_obs_;
+    xt::xarray<double> obs_characteristic_points_;
+
     int dim_p_ = 3;
     int n_exp_cone_;
     int n_;
@@ -35,11 +38,12 @@ public:
     ScsInfo* scs_info_;
     ScsCone* scs_cone_;
 
-    ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF_rob, std::shared_ptr<LogSumExp3d> SF_obs);
+    ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF_rob, std::shared_ptr<LogSumExp3d> SF_obs, 
+        const xt::xarray<double>& obs_characteristic_points);
 
     ~ElliposoidAndLogSumExp3dPrb();
 
-    std::tuple<int, xt::xarray<double>> solve_scs_prb(const xt::xarray<double>& d, const xt::xarray<double>& q);
+    std::tuple<int, xt::xarray<double>> solveSCSPrb(const xt::xarray<double>& d, const xt::xarray<double>& q);
 
     std::tuple<double, xt::xarray<double>, xt::xarray<double>> solve(const xt::xarray<double>& d, const xt::xarray<double>& q) override;
 
