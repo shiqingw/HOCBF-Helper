@@ -86,20 +86,27 @@ std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarra
                 Q = getQMatrixFromQuat(q); // shape (4, 3)
                 A = xt::zeros<double>({7, 6});
                 xt::view(A, xt::range(0, 3), xt::range(0, 3)) = xt::eye<double>(3);
-                xt::view(A, xt::range(3, 7), xt::range(3, 6)) = Q;
+                xt::view(A, xt::range(3, 7), xt::range(3, 6)) = 0.5*Q;
                 dx = xt::linalg::dot(A, v); // shape (7)
                 dquat = 0.5 * xt::linalg::dot(Q, xt::view(v, xt::range(3, 6))); // shape (4)
                 dQ = getdQMatrixFromdQuat(dquat); // shape (4, 3)
                 dA = xt::zeros<double>({7, 6});
-                xt::view(dA, xt::range(3, 7), xt::range(3, 6)) = dQ;
+                xt::view(dA, xt::range(3, 7), xt::range(3, 6)) = 0.5*dQ;
 
-                dh = xt::linalg::dot(h_dx, dx)(0);
-                phi1 = dh + gamma1 * h;
-                actuation = xt::linalg::dot(xt::linalg::dot(h_dx, A), J); // shape (7)
-                lb = - gamma2 * phi1 - gamma1 * dh - xt::linalg::dot(xt::linalg::dot(dx, h_dxdx), dx)(0)
-                    - xt::linalg::dot(h_dx, xt::linalg::dot(dA, v))(0) - xt::linalg::dot(h_dx, xt::linalg::dot(A, dJdq))(0)
-                    + compensation;
-                ub = std::numeric_limits<double>::infinity();
+                if (alpha != 0){
+                    dh = xt::linalg::dot(h_dx, dx)(0);
+                    phi1 = dh + gamma1 * h;
+                    actuation = xt::linalg::dot(xt::linalg::dot(h_dx, A), J); // shape (7)
+                    lb = - gamma2 * phi1 - gamma1 * dh - xt::linalg::dot(xt::linalg::dot(dx, h_dxdx), dx)(0)
+                        - xt::linalg::dot(h_dx, xt::linalg::dot(dA, v))(0) - xt::linalg::dot(h_dx, xt::linalg::dot(A, dJdq))(0)
+                        + compensation;
+                    ub = std::numeric_limits<double>::infinity();
+                } else {
+                    phi1 = 0;
+                    actuation = xt::zeros<double>({7});
+                    lb = 0;
+                    ub = 0;
+                }
 
                 all_h(i) = h;
                 xt::view(all_h_dx, i, xt::all()) = h_dx;

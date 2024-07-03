@@ -42,8 +42,8 @@ ElliposoidAndLogSumExp3dPrb::ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipso
         scs_stgs_ = new ScsSettings();
         scs_set_default_settings(scs_stgs_);
         scs_stgs_->normalize = 1;
-        scs_stgs_->eps_abs = 1e-4;
-        scs_stgs_->eps_rel = 1e-4;
+        scs_stgs_->eps_abs = 1e-5;
+        scs_stgs_->eps_rel = 1e-5;
         scs_stgs_->verbose = 0;
         scs_stgs_->max_iters = 10000;
         scs_stgs_->time_limit_secs = 0.1;
