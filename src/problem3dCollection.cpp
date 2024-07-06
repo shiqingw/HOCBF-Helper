@@ -77,10 +77,6 @@ std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarra
                 double alpha, h, dh, phi1, lb, ub;
                 xt::xarray<double> alpha_dx, alpha_dxdx, actuation, h_dx, h_dxdx, v, A, Q, dx, dquat, dA, dQ;
                 std::tie(alpha, alpha_dx, alpha_dxdx) = problem->solve(d, q);
-
-                h = alpha - alpha0;
-                h_dx = alpha_dx;
-                h_dxdx = alpha_dxdx;
                 
                 v = xt::linalg::dot(J, dq); // shape (6)
                 Q = getQMatrixFromQuat(q); // shape (4, 3)
@@ -94,6 +90,10 @@ std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarra
                 xt::view(dA, xt::range(3, 7), xt::range(3, 6)) = 0.5*dQ;
 
                 if (alpha != 0){
+                    h = alpha - alpha0;
+                    h_dx = alpha_dx;
+                    h_dxdx = alpha_dxdx;
+
                     dh = xt::linalg::dot(h_dx, dx)(0);
                     phi1 = dh + gamma1 * h;
                     actuation = xt::linalg::dot(xt::linalg::dot(h_dx, A), J); // shape (7)
@@ -102,6 +102,10 @@ std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarra
                         + compensation;
                     ub = std::numeric_limits<double>::infinity();
                 } else {
+                    h = std::numeric_limits<double>::infinity();
+                    h_dx = xt::zeros<double>({7});
+                    h_dxdx = xt::zeros<double>({7, 7});
+
                     phi1 = 0;
                     actuation = xt::zeros<double>({7});
                     lb = 0;
@@ -125,4 +129,82 @@ std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarra
     thread_pool.wait();
     
     return std::make_tuple(all_h, all_h_dx, all_h_dxdx, all_phi1, all_actuation, all_lb, all_ub);
+}
+
+std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, 
+    xt::xarray<double>, xt::xarray<double>> Problem3dCollection::getSmoothMinCBFConstraints(
+    const xt::xarray<double>& dq, const xt::xarray<double>& all_postion, const xt::xarray<double>& all_quat, 
+    const xt::xarray<double>& all_Jacobian, const xt::xarray<double>& all_dJdq, double alpha0){
+
+    xt::xarray<double> all_h = xt::zeros<double>({n_problems});
+    xt::xarray<double> all_h_dx = xt::zeros<double>({n_problems, 7});
+    xt::xarray<double> all_h_dxdx = xt::zeros<double>({n_problems, 7, 7});
+    xt::xarray<double> all_first_order_average_scalar = xt::zeros<double>({n_problems});
+    xt::xarray<double> all_second_order_average_scalar = xt::zeros<double>({n_problems});
+    xt::xarray<double> all_second_order_average_vector = xt::zeros<double>({n_problems, 7});
+
+    for (int i = 0; i < n_problems; i++) {
+        std::shared_ptr<Problem3d> problem = problems[i];
+        int frame_id = frame_ids[i];
+        thread_pool.enqueue([problem, i, frame_id, &all_h, &all_h_dx, &all_h_dxdx, &all_first_order_average_scalar, &all_second_order_average_scalar,
+            &all_second_order_average_vector, &dq, &all_Jacobian, &all_postion, &all_quat, &all_dJdq, alpha0] {
+            try {
+                xt::xarray<double> J = xt::view(all_Jacobian, frame_id, xt::all(), xt::all()); // shape (6, 7)
+                xt::xarray<double> d = xt::view(all_postion, frame_id, xt::all()); // shape (3)
+                xt::xarray<double> q = xt::view(all_quat, frame_id, xt::all()); // shape (4)
+                xt::xarray<double> dJdq = xt::view(all_dJdq, frame_id, xt::all()); // shape (7)
+
+                double alpha, h, first_order_average_scalar, second_order_average_scalar;
+                xt::xarray<double> alpha_dx, alpha_dxdx, h_dx, h_dxdx, v, A, Q, dx, dquat, dA, dQ, second_order_average_vector;
+                std::tie(alpha, alpha_dx, alpha_dxdx) = problem->solve(d, q);
+                
+                v = xt::linalg::dot(J, dq); // shape (6)
+                Q = getQMatrixFromQuat(q); // shape (4, 3)
+                A = xt::zeros<double>({7, 6});
+                xt::view(A, xt::range(0, 3), xt::range(0, 3)) = xt::eye<double>(3);
+                xt::view(A, xt::range(3, 7), xt::range(3, 6)) = 0.5*Q;
+                dx = xt::linalg::dot(A, v); // shape (7)
+                dquat = 0.5 * xt::linalg::dot(Q, xt::view(v, xt::range(3, 6))); // shape (4)
+                dQ = getdQMatrixFromdQuat(dquat); // shape (4, 3)
+                dA = xt::zeros<double>({7, 6});
+                xt::view(dA, xt::range(3, 7), xt::range(3, 6)) = 0.5*dQ;
+
+                if (alpha != 0){
+                    h = alpha - alpha0;
+                    h_dx = alpha_dx;
+                    h_dxdx = alpha_dxdx;
+
+                    first_order_average_scalar = xt::linalg::dot(h_dx, dx)(0);
+
+                    second_order_average_scalar = xt::linalg::dot(xt::linalg::dot(dx, h_dxdx), dx)(0)
+                        + xt::linalg::dot(h_dx, xt::linalg::dot(dA, v))(0) + xt::linalg::dot(h_dx, xt::linalg::dot(A, dJdq))(0);
+
+                    second_order_average_vector = xt::linalg::dot(xt::linalg::dot(h_dx, A), J); // shape (7)
+                } else {
+                    h = std::numeric_limits<double>::infinity();
+                    h_dx = xt::zeros<double>({7});
+                    h_dxdx = xt::zeros<double>({7, 7});
+                    
+                    first_order_average_scalar = 0;
+                    second_order_average_scalar = 0;
+                    second_order_average_vector = xt::zeros<double>({7});
+                }
+
+                all_h(i) = h;
+                xt::view(all_h_dx, i, xt::all()) = h_dx;
+                xt::view(all_h_dxdx, i, xt::all(), xt::all()) = h_dxdx;
+
+                xt::view(all_first_order_average_scalar, i) = first_order_average_scalar;
+                xt::view(all_second_order_average_scalar, i) = second_order_average_scalar;
+                xt::view(all_second_order_average_vector, i, xt::all()) = second_order_average_vector;
+
+            } catch (const std::exception& e) {
+                std::cerr << "Exception in thread " << i << ": " << e.what() << std::endl;
+            }
+        });
+    }
+
+    thread_pool.wait();
+    
+    return std::make_tuple(all_h, all_h_dx, all_h_dxdx, all_first_order_average_scalar, all_second_order_average_scalar, all_second_order_average_vector);
 }

@@ -45,8 +45,9 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
         .def_readonly("n_threads", &Problem3dCollection::n_threads)
         .def_readonly("frame_ids", &Problem3dCollection::frame_ids)
         .def("addProblem", &Problem3dCollection::addProblem)
+        .def("waitAll", &Problem3dCollection::waitAll)
         .def("solveGradientAndHessian", &Problem3dCollection::solveGradientAndHessian)
         .def("getCBFConstraints", &Problem3dCollection::getCBFConstraints)
-        .def("waitAll", &Problem3dCollection::waitAll);
+        .def("getSmoothMinCBFConstraints", &Problem3dCollection::getSmoothMinCBFConstraints);
 
 }

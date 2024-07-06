@@ -36,6 +36,11 @@ public:
         const xt::xarray<double>& all_postion, const xt::xarray<double>& all_quat, const xt::xarray<double>& all_Jacobian, 
         const xt::xarray<double>& all_dJdq, double alpha0, double gamma1, double gamma2, double compensation);
 
+    std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, 
+        xt::xarray<double>, xt::xarray<double>> getSmoothMinCBFConstraints(const xt::xarray<double>& dq,
+        const xt::xarray<double>& all_postion, const xt::xarray<double>& all_quat, const xt::xarray<double>& all_Jacobian, 
+        const xt::xarray<double>& all_dJdq, double alpha0);
+
 };
 
 #endif
