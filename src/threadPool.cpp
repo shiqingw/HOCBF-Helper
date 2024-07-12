@@ -1,6 +1,11 @@
 #include "threadPool.hpp"
 
+ThreadPool* ThreadPool::instance = nullptr;
+
 ThreadPool::ThreadPool(int num_threads) : stop(false), working_threads(0) {
+    instance = this; // Assign the current instance to the static variable
+    std::signal(SIGINT, ThreadPool::signal_handler); // Set up the signal handler
+
     for (int i = 0; i < num_threads; ++i) {
         workers.emplace_back([this] {
             while (true) {
@@ -46,14 +51,16 @@ void ThreadPool::wait() {
     condition.wait(lock, [this] { return this->tasks.empty() && this->working_threads == 0; });
 }
 
-// void ThreadPool::wait() {
-//     std::unique_lock<std::mutex> lock(queue_mutex);
-//     std::cout << "Waiting for tasks to complete" << std::endl;
-//     condition.wait(lock, [this] {
-//         bool done = this->tasks.empty() && this->working_threads == 0;
-//         if (done) {
-//             std::cout << "All tasks completed" << std::endl;
-//         }
-//         return done;
-//     });
-// }
+void ThreadPool::signal_handler(int signal) {
+    if (signal == SIGINT) {
+        std::cout << "Caught signal " << signal << std::endl;
+        if (instance) {
+            {   
+                std::cout << "Stopping the thread pool..." << std::endl;
+                std::unique_lock<std::mutex> lock(instance->queue_mutex);
+                instance->stop = true;
+            }
+            instance->condition.notify_all();
+        }
+    }
+}
