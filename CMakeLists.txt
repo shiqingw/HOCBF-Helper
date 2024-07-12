@@ -23,11 +23,12 @@ if(BUILD_PYTHON_MODULE)
     pybind11_add_module(
         HOCBFHelperPy
         src/pybind.cpp
+        src/utils.cpp
         src/threadPool.cpp
         src/problem3d.cpp
         src/problem3dCollection.cpp
-        src/elliposoidAndLogSumExp3dPrb.cpp
-        src/utils.cpp
+        src/ellipsoidAndLogSumExp3dPrb.cpp
+        src/ellipsoidAndHyperplane3dPrb.cpp
     )
 
     if(EXISTS /usr/local/include)
@@ -68,10 +69,11 @@ else()
     add_executable(main 
         src/main.cpp
         src/threadPool.cpp
+        src/utils.cpp
         src/problem3d.cpp
         src/problem3dCollection.cpp
-        src/elliposoidAndLogSumExp3dPrb.cpp
-        src/utils.cpp
+        src/ellipsoidAndLogSumExp3dPrb.cpp
+        src/ellipsoidAndHyperplane3dPrb.cpp
     )
 
     if(EXISTS /usr/local/include)

@@ -15,7 +15,7 @@
 
 #include "problem3d.hpp"
 
-class ElliposoidAndLogSumExp3dPrb: public Problem3d{
+class EllipsoidAndLogSumExp3dPrb: public Problem3d{
 public:
     std::shared_ptr<Ellipsoid3d> SF_rob_;
     std::shared_ptr<LogSumExp3d> SF_obs_;
@@ -38,10 +38,10 @@ public:
     ScsInfo* scs_info_;
     ScsCone* scs_cone_;
 
-    ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF_rob, std::shared_ptr<LogSumExp3d> SF_obs, 
+    EllipsoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF_rob, std::shared_ptr<LogSumExp3d> SF_obs, 
         const xt::xtensor<double, 2>& obs_characteristic_points);
 
-    ~ElliposoidAndLogSumExp3dPrb();
+    ~EllipsoidAndLogSumExp3dPrb();
 
     std::tuple<int, xt::xtensor<double, 1>> solveSCSPrb(const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q);
 

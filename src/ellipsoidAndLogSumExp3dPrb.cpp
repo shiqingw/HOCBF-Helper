@@ -1,6 +1,6 @@
-#include "elliposoidAndLogSumExp3dPrb.hpp"
+#include "ellipsoidAndLogSumExp3dPrb.hpp"
 
-ElliposoidAndLogSumExp3dPrb::ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF1, 
+EllipsoidAndLogSumExp3dPrb::EllipsoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF1, 
     std::shared_ptr<LogSumExp3d> SF2, const xt::xtensor<double, 2>& obs_characteristic_points) :
     SF_rob_(SF1), SF_obs_(SF2), obs_characteristic_points_(obs_characteristic_points) {
 
@@ -64,7 +64,7 @@ ElliposoidAndLogSumExp3dPrb::ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipso
         warm_s_ = new double[m_]();
     }
 
-ElliposoidAndLogSumExp3dPrb::~ElliposoidAndLogSumExp3dPrb(){
+EllipsoidAndLogSumExp3dPrb::~EllipsoidAndLogSumExp3dPrb(){
     delete[] warm_x_;
     delete[] warm_y_;
     delete[] warm_s_;
@@ -77,7 +77,7 @@ ElliposoidAndLogSumExp3dPrb::~ElliposoidAndLogSumExp3dPrb(){
     delete scs_sol_;
 }
 
-std::tuple<int, xt::xtensor<double, 1>> ElliposoidAndLogSumExp3dPrb::solveSCSPrb(const xt::xtensor<double, 1>& d, 
+std::tuple<int, xt::xtensor<double, 1>> EllipsoidAndLogSumExp3dPrb::solveSCSPrb(const xt::xtensor<double, 1>& d, 
     const xt::xtensor<double, 1>& q){
 
     xt::xtensor<double, 2> Q_d = SF_rob_->getWorldQuadraticCoefficient(q);
@@ -167,7 +167,7 @@ std::tuple<int, xt::xtensor<double, 1>> ElliposoidAndLogSumExp3dPrb::solveSCSPrb
     }
 }
 
-std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> ElliposoidAndLogSumExp3dPrb::solve(
+std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> EllipsoidAndLogSumExp3dPrb::solve(
     const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q){
     
     // If the distance from d to each obs_characteristic_point is greater than 10 meters, return directly
