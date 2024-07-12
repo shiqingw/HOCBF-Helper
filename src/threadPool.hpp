@@ -9,7 +9,6 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
-#include <csignal>
 
 class ThreadPool {
 public:
@@ -17,7 +16,6 @@ public:
     ~ThreadPool();
     void enqueue(std::function<void()> task);
     void wait();
-    static void signal_handler(int signal);
 
 private:
     std::vector<std::thread> workers;
@@ -26,7 +24,6 @@ private:
     std::condition_variable condition;
     bool stop;
     std::atomic<int> working_threads;
-    static ThreadPool* instance;
 };
 
 #endif // THREADPOOL_HPP
