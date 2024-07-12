@@ -1,11 +1,11 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
-#include <xtensor/xarray.hpp>
+#include <xtensor/xtensor.hpp>
 
-xt::xarray<double> getRotMatrixFromQuat(const xt::xarray<double>& q);
+xt::xtensor<double, 2> getRotMatrixFromQuat(const xt::xtensor<double, 1>& q);
 
-xt::xarray<double> getQMatrixFromQuat(const xt::xarray<double>& q);
+xt::xtensor<double, 2> getQMatrixFromQuat(const xt::xtensor<double, 1>& q);
 
-xt::xarray<double> getdQMatrixFromdQuat(const xt::xarray<double>& dq);
+xt::xtensor<double, 2> getdQMatrixFromdQuat(const xt::xtensor<double, 1>& dq);
 
 #endif

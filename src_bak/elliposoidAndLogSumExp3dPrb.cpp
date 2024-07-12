@@ -1,12 +1,12 @@
 #include "elliposoidAndLogSumExp3dPrb.hpp"
 
 ElliposoidAndLogSumExp3dPrb::ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF1, 
-    std::shared_ptr<LogSumExp3d> SF2, const xt::xtensor<double, 2>& obs_characteristic_points) :
+    std::shared_ptr<LogSumExp3d> SF2, const xt::xarray<double>& obs_characteristic_points) :
     SF_rob_(SF1), SF_obs_(SF2), obs_characteristic_points_(obs_characteristic_points) {
 
         p_sol_ = xt::zeros<double>({dim_p_});
-        xt::xtensor<double, 2> A_d = SF_obs_->A;
-        xt::xtensor<double, 1> b_d = SF_obs_->b;
+        xt::xarray<double> A_d = SF_obs_->A;
+        xt::xarray<double> b_d = SF_obs_->b;
         double kappa_d = SF_obs_->kappa;
         n_exp_cone_ = A_d.shape()[0];
         m_ = 1 + 3*n_exp_cone_;
@@ -77,11 +77,11 @@ ElliposoidAndLogSumExp3dPrb::~ElliposoidAndLogSumExp3dPrb(){
     delete scs_sol_;
 }
 
-std::tuple<int, xt::xtensor<double, 1>> ElliposoidAndLogSumExp3dPrb::solveSCSPrb(const xt::xtensor<double, 1>& d, 
-    const xt::xtensor<double, 1>& q){
+std::tuple<int, xt::xarray<double>> ElliposoidAndLogSumExp3dPrb::solveSCSPrb(const xt::xarray<double>& d, 
+    const xt::xarray<double>& q){
 
-    xt::xtensor<double, 2> Q_d = SF_rob_->getWorldQuadraticCoefficient(q);
-    xt::xtensor<double, 1> mu_d = SF_rob_->getWorldCenter(d, q);
+    xt::xarray<double> Q_d = SF_rob_->getWorldQuadraticCoefficient(q);
+    xt::xarray<double> mu_d = SF_rob_->getWorldCenter(d, q);
 
     Eigen::SparseMatrix<double> P(n_, n_);
 
@@ -108,7 +108,7 @@ std::tuple<int, xt::xtensor<double, 1>> ElliposoidAndLogSumExp3dPrb::solveSCSPrb
     A_scs->n = A_scs_.cols();
 
     Eigen::VectorXd c_scs = Eigen::VectorXd::Zero(n_);
-    xt::xtensor<double, 1> c_d = - xt::linalg::dot(Q_d, mu_d);
+    xt::xarray<double> c_d = - xt::linalg::dot(Q_d, mu_d);
     for (int i=0; i<dim_p_; ++i){
         c_scs(i) = c_d(i);
     }
@@ -137,7 +137,7 @@ std::tuple<int, xt::xtensor<double, 1>> ElliposoidAndLogSumExp3dPrb::solveSCSPrb
     scs_finish(scs_work);
 
     if (exitflag == 1){
-        xt::xtensor<double, 1> p_sol = xt::zeros<double>({dim_p_});
+        xt::xarray<double> p_sol = xt::zeros<double>({dim_p_});
         for (int i=0; i<dim_p_; ++i){
             p_sol(i) = scs_sol_->x[i];
             p_sol_(i) = scs_sol_->x[i];
@@ -167,8 +167,8 @@ std::tuple<int, xt::xtensor<double, 1>> ElliposoidAndLogSumExp3dPrb::solveSCSPrb
     }
 }
 
-std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> ElliposoidAndLogSumExp3dPrb::solve(
-    const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q){
+std::tuple<double, xt::xarray<double>, xt::xarray<double>> ElliposoidAndLogSumExp3dPrb::solve(
+    const xt::xarray<double>& d, const xt::xarray<double>& q){
     
     // If the distance from d to each obs_characteristic_point is greater than 10 meters, return directly
     double min_dist = std::numeric_limits<double>::infinity();
@@ -181,7 +181,7 @@ std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> ElliposoidAnd
     }
     
     int exitflag;
-    xt::xtensor<double, 1> p;
+    xt::xarray<double> p;
     std::tie(exitflag, p) = solveSCSPrb(d, q);
     
     if (exitflag != 1){
@@ -189,10 +189,10 @@ std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> ElliposoidAnd
     }
 
     double alpha;
-    xt::xtensor<double, 1> alpha_dx;
-    xt::xtensor<double, 2> alpha_dxdx;
-    xt::xtensor<double, 1> d2 = xt::zeros<double>({3});
-    xt::xtensor<double, 1> q2 = xt::zeros<double>({4});
+    xt::xarray<double> alpha_dx;
+    xt::xarray<double> alpha_dxdx;
+    xt::xarray<double> d2 = xt::zeros<double>({3});
+    xt::xarray<double> q2 = xt::zeros<double>({4});
     q2(3) = 1;
 
     std::tie(alpha, alpha_dx, alpha_dxdx) = getGradientAndHessian3d(p, SF_rob_, d, q, SF_obs_, d2, q2);

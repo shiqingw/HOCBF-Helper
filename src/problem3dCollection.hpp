@@ -4,8 +4,9 @@
 #include <tuple>
 #include <chrono>
 #include <limits>
-#include <xtensor/xarray.hpp>
+#include <xtensor/xtensor.hpp>
 #include <xtensor-python/pyarray.hpp>
+#include <xtensor/xnoalias.hpp>
 
 #include "threadPool.hpp"
 #include "problem3d.hpp"
@@ -28,18 +29,18 @@ public:
 
     void waitAll();
 
-    std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>> solveGradientAndHessian(
-        const xt::xarray<double>& all_d, const xt::xarray<double>& all_q);
+    std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>> solveGradientAndHessian(
+        const xt::xtensor<double, 2>& all_d, const xt::xtensor<double, 2>& all_q);
 
-    std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, 
-        xt::xarray<double>, xt::xarray<double>, xt::xarray<double>> getCBFConstraints(const xt::xarray<double>& dq,
-        const xt::xarray<double>& all_postion, const xt::xarray<double>& all_quat, const xt::xarray<double>& all_Jacobian, 
-        const xt::xarray<double>& all_dJdq, double alpha0, double gamma1, double gamma2, double compensation);
+    std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
+        xt::xtensor<double, 2>, xt::xtensor<double, 1>, xt::xtensor<double, 1>> getCBFConstraints(const xt::xtensor<double, 1>& dq,
+        const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 2>& all_quat, const xt::xtensor<double, 3>& all_Jacobian, 
+        const xt::xtensor<double, 2>& all_dJdq, double alpha0, double gamma1, double gamma2, double compensation);
 
-    std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, 
-        xt::xarray<double>, xt::xarray<double>> getSmoothMinCBFConstraints(const xt::xarray<double>& dq,
-        const xt::xarray<double>& all_postion, const xt::xarray<double>& all_quat, const xt::xarray<double>& all_Jacobian, 
-        const xt::xarray<double>& all_dJdq, double alpha0);
+    std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
+        xt::xtensor<double, 1>, xt::xtensor<double, 2>> getSmoothMinCBFConstraints(const xt::xtensor<double, 1>& dq,
+        const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 2>& all_quat, const xt::xtensor<double, 3>& all_Jacobian, 
+        const xt::xtensor<double, 2>& all_dJdq, double alpha0);
 
 };
 

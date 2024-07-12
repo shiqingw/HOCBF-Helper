@@ -12,7 +12,7 @@ public:
 
     ~Problem3d()=default;
 
-    virtual std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> solve(const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q)=0;
+    virtual std::tuple<double, xt::xarray<double>, xt::xarray<double>> solve(const xt::xarray<double>& d, const xt::xarray<double>& q)=0;
 
 };
 

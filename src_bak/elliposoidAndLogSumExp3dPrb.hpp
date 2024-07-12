@@ -6,7 +6,7 @@
 #include <limits>
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Sparse>
-#include <xtensor/xtensor.hpp>
+#include <xtensor/xarray.hpp>
 #include <xtensor/xio.hpp>
 #include <scs/scs.h>
 #include <scalingFunctionsHelper/ellipsoid3d.hpp>
@@ -19,7 +19,7 @@ class ElliposoidAndLogSumExp3dPrb: public Problem3d{
 public:
     std::shared_ptr<Ellipsoid3d> SF_rob_;
     std::shared_ptr<LogSumExp3d> SF_obs_;
-    xt::xtensor<double, 2> obs_characteristic_points_;
+    xt::xarray<double> obs_characteristic_points_;
 
     int dim_p_ = 3;
     int n_exp_cone_;
@@ -27,7 +27,7 @@ public:
     int m_;
     Eigen::SparseMatrix<double> A_scs_;
     Eigen::VectorXd b_scs_;
-    xt::xtensor<double, 1> p_sol_;
+    xt::xarray<double> p_sol_;
 
     double* warm_x_;
     double* warm_y_;
@@ -39,13 +39,13 @@ public:
     ScsCone* scs_cone_;
 
     ElliposoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF_rob, std::shared_ptr<LogSumExp3d> SF_obs, 
-        const xt::xtensor<double, 2>& obs_characteristic_points);
+        const xt::xarray<double>& obs_characteristic_points);
 
     ~ElliposoidAndLogSumExp3dPrb();
 
-    std::tuple<int, xt::xtensor<double, 1>> solveSCSPrb(const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q);
+    std::tuple<int, xt::xarray<double>> solveSCSPrb(const xt::xarray<double>& d, const xt::xarray<double>& q);
 
-    std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> solve(const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q) override;
+    std::tuple<double, xt::xarray<double>, xt::xarray<double>> solve(const xt::xarray<double>& d, const xt::xarray<double>& q) override;
 
 };
 

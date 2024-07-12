@@ -19,7 +19,7 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
     py::class_<Problem3d, std::shared_ptr<Problem3d>>(m, "Problem3d");
 
     py::class_<ElliposoidAndLogSumExp3dPrb, Problem3d, std::shared_ptr<ElliposoidAndLogSumExp3dPrb>>(m, "ElliposoidAndLogSumExp3dPrb")
-        .def(py::init<std::shared_ptr<Ellipsoid3d>, std::shared_ptr<LogSumExp3d>, xt::xtensor<double, 2>>())
+        .def(py::init<std::shared_ptr<Ellipsoid3d>, std::shared_ptr<LogSumExp3d>, xt::xarray<double>>())
         .def("solveSCSPrb", &ElliposoidAndLogSumExp3dPrb::solveSCSPrb)
         .def("solve", &ElliposoidAndLogSumExp3dPrb::solve)
         .def_readonly("dim_p", &ElliposoidAndLogSumExp3dPrb::dim_p_)
@@ -35,7 +35,7 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
                 if (t.size() != 3)
                     throw std::runtime_error("Invalid state!");
                 return std::make_shared<ElliposoidAndLogSumExp3dPrb>(t[0].cast<std::shared_ptr<Ellipsoid3d>>(), t[1].cast<std::shared_ptr<LogSumExp3d>>(),
-                    t[2].cast<xt::xtensor<double, 2>>());
+                    t[2].cast<xt::xarray<double>>());
             }
         ));
     
