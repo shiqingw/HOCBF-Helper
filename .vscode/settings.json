@@ -65,7 +65,11 @@
         "chrono": "cpp",
         "__tree": "cpp",
         "iomanip": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "set": "cpp",
+        "valarray": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang++"
 }

@@ -22,8 +22,8 @@ std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3
         const xt::xtensor<double, 2>& all_d, const xt::xtensor<double, 2>& all_q) {
 
     xt::xtensor<double, 1> all_alpha = xt::zeros<double>({n_problems});
-    xt::xtensor<double, 1> all_alpha_dx = xt::zeros<double>({n_problems, 7});
-    xt::xtensor<double, 1> all_alpha_dxdx = xt::zeros<double>({n_problems, 7, 7});
+    xt::xtensor<double, 2> all_alpha_dx = xt::zeros<double>({n_problems, 7});
+    xt::xtensor<double, 3> all_alpha_dxdx = xt::zeros<double>({n_problems, 7, 7});
 
     for (int i = 0; i < n_problems; i++) {
         std::shared_ptr<Problem3d> problem = problems[i];
@@ -33,7 +33,8 @@ std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3
                 xt::xtensor<double, 1> q = xt::view(all_q, i, xt::all()); // shape (7)
 
                 double alpha;
-                xt::xtensor<double, 1> alpha_dx, alpha_dxdx;
+                xt::xtensor<double, 1> alpha_dx;
+                xt::xtensor<double, 2> alpha_dxdx;
                 std::tie(alpha, alpha_dx, alpha_dxdx) = problem->solve(d, q);
                 all_alpha[i] = alpha;
                 xt::view(all_alpha_dx, i, xt::all()) = alpha_dx;

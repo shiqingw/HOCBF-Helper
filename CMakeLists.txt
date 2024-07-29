@@ -29,6 +29,10 @@ if(BUILD_PYTHON_MODULE)
         src/problem3dCollection.cpp
         src/ellipsoidAndLogSumExp3dPrb.cpp
         src/ellipsoidAndHyperplane3dPrb.cpp
+        src/problem2d.cpp
+        src/problem2dCollection.cpp
+        src/ellipsoidAndLogSumExp2dPrb.cpp
+        src/ellipsoidAndHyperplane2dPrb.cpp
     )
 
     if(EXISTS /usr/local/include)
@@ -74,6 +78,10 @@ else()
         src/problem3dCollection.cpp
         src/ellipsoidAndLogSumExp3dPrb.cpp
         src/ellipsoidAndHyperplane3dPrb.cpp
+        src/problem2d.cpp
+        src/problem2dCollection.cpp
+        src/ellipsoidAndLogSumExp2dPrb.cpp
+        src/ellipsoidAndHyperplane2dPrb.cpp
     )
 
     if(EXISTS /usr/local/include)

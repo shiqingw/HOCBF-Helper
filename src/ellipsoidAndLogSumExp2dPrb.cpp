@@ -1,7 +1,7 @@
-#include "ellipsoidAndLogSumExp3dPrb.hpp"
+#include "ellipsoidAndLogSumExp2dPrb.hpp"
 
-EllipsoidAndLogSumExp3dPrb::EllipsoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF1, 
-    std::shared_ptr<LogSumExp3d> SF2, const xt::xtensor<double, 2>& obs_characteristic_points) :
+EllipsoidAndLogSumExp2dPrb::EllipsoidAndLogSumExp2dPrb(std::shared_ptr<Ellipsoid2d> SF1, 
+    std::shared_ptr<LogSumExp2d> SF2, const xt::xtensor<double, 2>& obs_characteristic_points) :
     SF_rob_(SF1), SF_obs_(SF2), obs_characteristic_points_(obs_characteristic_points) {
 
         p_sol_ = xt::zeros<double>({dim_p_});
@@ -64,7 +64,7 @@ EllipsoidAndLogSumExp3dPrb::EllipsoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid
         warm_s_ = new double[m_]();
     }
 
-EllipsoidAndLogSumExp3dPrb::~EllipsoidAndLogSumExp3dPrb(){
+EllipsoidAndLogSumExp2dPrb::~EllipsoidAndLogSumExp2dPrb(){
     delete[] warm_x_;
     delete[] warm_y_;
     delete[] warm_s_;
@@ -77,11 +77,11 @@ EllipsoidAndLogSumExp3dPrb::~EllipsoidAndLogSumExp3dPrb(){
     delete scs_sol_;
 }
 
-std::tuple<int, xt::xtensor<double, 1>> EllipsoidAndLogSumExp3dPrb::solveSCSPrb(const xt::xtensor<double, 1>& d, 
-    const xt::xtensor<double, 1>& q){
+std::tuple<int, xt::xtensor<double, 1>> EllipsoidAndLogSumExp2dPrb::solveSCSPrb(const xt::xtensor<double, 1>& d, 
+    double theta){
 
-    xt::xtensor<double, 2> Q_d = SF_rob_->getWorldQuadraticCoefficient(q);
-    xt::xtensor<double, 1> mu_d = SF_rob_->getWorldCenter(d, q);
+    xt::xtensor<double, 2> Q_d = SF_rob_->getWorldQuadraticCoefficient(theta);
+    xt::xtensor<double, 1> mu_d = SF_rob_->getWorldCenter(d, theta);
 
     Eigen::SparseMatrix<double> P(n_, n_);
 
@@ -167,8 +167,8 @@ std::tuple<int, xt::xtensor<double, 1>> EllipsoidAndLogSumExp3dPrb::solveSCSPrb(
     }
 }
 
-std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> EllipsoidAndLogSumExp3dPrb::solve(
-    const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q){
+std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> EllipsoidAndLogSumExp2dPrb::solve(
+    const xt::xtensor<double, 1>& d, double theta){
     
     // If the distance from d to each obs_characteristic_point is greater than 10 meters, return directly
     double min_dist = std::numeric_limits<double>::infinity();
@@ -177,25 +177,24 @@ std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> EllipsoidAndL
         min_dist = std::min(min_dist, dist);
     }
     if (min_dist > 10){
-        return std::make_tuple(0, xt::zeros<double>({7}), xt::zeros<double>({7, 7}));
+        return std::make_tuple(0, xt::zeros<double>({3}), xt::zeros<double>({3, 3}));
     }
     
     int exitflag;
     xt::xtensor<double, 1> p;
-    std::tie(exitflag, p) = solveSCSPrb(d, q);
+    std::tie(exitflag, p) = solveSCSPrb(d, theta);
     
     if (exitflag != 1){
-        return std::make_tuple(0, xt::zeros<double>({7}), xt::zeros<double>({7, 7}));
+        return std::make_tuple(0, xt::zeros<double>({3}), xt::zeros<double>({3, 3}));
     }
 
     double alpha;
     xt::xtensor<double, 1> alpha_dx;
     xt::xtensor<double, 2> alpha_dxdx;
-    xt::xtensor<double, 1> d2 = xt::zeros<double>({3});
-    xt::xtensor<double, 1> q2 = xt::zeros<double>({4});
-    q2(3) = 1;
+    xt::xtensor<double, 1> d2 = xt::zeros<double>({2});
+    double theta2 = 0.0;
 
-    std::tie(alpha, alpha_dx, alpha_dxdx) = getGradientAndHessian3d(p, SF_rob_, d, q, SF_obs_, d2, q2);
+    std::tie(alpha, alpha_dx, alpha_dxdx) = getGradientAndHessian2d(p, SF_rob_, d, theta, SF_obs_, d2, theta2);
 
     return std::make_tuple(alpha, alpha_dx, alpha_dxdx);
 }

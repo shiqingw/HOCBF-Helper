@@ -10,7 +10,7 @@ std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> EllipsoidAndH
     double b = SF_obs_->b;
 
     xt::xtensor<double, 2> Q_inv = xt::linalg::inv(Q);
-    double tmp = std::max(0.0, xt::linalg::dot(a, mu)(0) + b - 1) / xt::linalg::dot(a, xt::linalg::dot(Q_inv, a))(0);
+    double tmp = std::max(0.0, xt::linalg::dot(a, mu)(0) + b) / xt::linalg::dot(a, xt::linalg::dot(Q_inv, a))(0);
     xt::xtensor<double, 1> p = mu - xt::linalg::dot(Q_inv, a) * tmp;
 
     p_sol_ = p;

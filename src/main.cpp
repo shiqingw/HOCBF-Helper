@@ -1,74 +1,67 @@
 #include <iostream>
 #include <memory>
-#include <xtensor/xarray.hpp>
+#include <xtensor/xtensor.hpp>
 #include <xtensor/xio.hpp>
 #include <chrono>
 
-#include "elliposoidAndLogSumExp3dPrb.hpp"
-#include "problem3dCollection.hpp"
+#include "ellipsoidAndLogSumExp2dPrb.hpp"
+#include "ellipsoidAndHyperplane2dPrb.hpp"
+#include "problem2dCollection.hpp"
+#include "scalingFunctionsHelper/ellipsoid2d.hpp"
+#include "scalingFunctionsHelper/logSumExp2d.hpp"
+#include "scalingFunctionsHelper/hyperplane2d.hpp"
 
 // int main(int argc, char* argv[]) {
 int main() {
-    xt::xarray<double> Q_d = xt::eye<double>(3);
-    xt::xarray<double> mu_d {4, 1, 1};
-    xt::xarray<double> A_d {{1,0,0},
-              {-1,0,0},
-              {0,1,0},
-              {0,-1,0},
-              {0,0,1},
-              {0,0,-1}};
-    xt::xarray<double> b_d = -xt::ones<double>({6});
-    double kappa_d = 10.0;
-    xt::xarray<double> vertices{{1,1,1},
-                                {1,1,-1},
-                                {1,-1,1},
-                                {1,-1,-1},
-                                {-1,1,1},
-                                {-1,1,-1},
-                                {-1,-1,1},
-                                {-1,-1,-1}};
+    xt::xtensor<double, 2> Q_d = xt::eye<double>(2);
+    xt::xtensor<double, 1> mu_d {4, 1};
 
-    std::shared_ptr<Ellipsoid3d> SF_rob(new Ellipsoid3d(true, Q_d, xt::zeros<double>({3})));
-    std::shared_ptr<LogSumExp3d> SF_obs(new LogSumExp3d(false, A_d, b_d, kappa_d));
+    xt::xtensor<double, 2> A_d {{1,0},
+                                {-1,0},
+                                {0,1},
+                                {0,-1}};
+    xt::xtensor<double, 1> b_d = -xt::ones<double>({4});
+    double kappa_d = 20.0;
+    xt::xtensor<double, 2> vertices{{1,1},
+                                    {1,-1},
+                                    {-1,1},
+                                    {-1,-1}};
 
+    xt::xtensor<double, 1> H_a {1,0};
+    double H_b = -1.0;
 
-    xt::xarray<double> q {0,0,0,1};
+    std::shared_ptr<Ellipsoid2d> SF_rob(new Ellipsoid2d(true, Q_d, xt::zeros<double>({2})));
+    std::shared_ptr<LogSumExp2d> SF_obs(new LogSumExp2d(false, A_d, b_d, kappa_d));
+    std::shared_ptr<Hyperplane2d> SF_obs_hyper(new Hyperplane2d(false, H_a, H_b));
     
-    int n_problems = 9;
-    int n_threads = 18;
-    std::shared_ptr<Problem3dCollection> col = std::make_shared<Problem3dCollection>(n_threads);
-    for (int i=0; i<n_problems; ++i){
-        // std::shared_ptr<Ellipsoid3d> SF_rob(new Ellipsoid3d(true, Q_d, xt::zeros<double>({3})));
-        // std::shared_ptr<LogSumExp3d> SF_obs(new LogSumExp3d(false, A_d, b_d, kappa_d));
-        std::shared_ptr<ElliposoidAndLogSumExp3dPrb> prb = std::make_shared<ElliposoidAndLogSumExp3dPrb>(SF_rob, SF_obs, vertices);
+    int n_repeat = 10;
+    int n_problems = 2*n_repeat;
+    int n_threads = 9;
+    std::shared_ptr<Problem2dCollection> col = std::make_shared<Problem2dCollection>(n_threads);
+    for (int i=0; i<n_repeat; ++i){
+        std::shared_ptr<EllipsoidAndLogSumExp2dPrb> prb = std::make_shared<EllipsoidAndLogSumExp2dPrb>(SF_rob, SF_obs, vertices);
         col->addProblem(prb, i);
     }
 
-    xt::xarray<double> all_d = xt::zeros<double>({n_problems, 3});
-    xt::xarray<double> all_q = xt::zeros<double>({n_problems, 4});
-    for (int i=0; i<n_problems; ++i){
-        xt::view(all_d, i, xt::all()) = mu_d;
-        all_q(i, 3) = 1;
+    for (int i=0; i<n_repeat; ++i){
+        std::shared_ptr<EllipsoidAndHyperplane2dPrb> prb = std::make_shared<EllipsoidAndHyperplane2dPrb>(SF_rob, SF_obs_hyper);
+        col->addProblem(prb, i + n_repeat);
     }
 
-    xt::xarray<double> dq = xt::zeros<double>({7});
-    xt::xarray<double> all_Jacobian = xt::zeros<double>({n_problems, 6, 7});
-    xt::xarray<double> all_dJdq = xt::zeros<double>({n_problems, 6});
-    double alpha0 = 0.1;
-    double gamma1 = 0.1;
-    double gamma2 = 0.1;
-    double compensation = 0.1;
+    xt::xtensor<double, 2> all_d = xt::zeros<double>({n_problems, 2});
+    for (int i=0; i<n_problems; ++i){
+        all_d(i, 0) = mu_d(0);
+        all_d(i, 1) = mu_d(1);
+    }
+    xt::xtensor<double, 1> all_theta = xt::zeros<double>({n_problems});
 
     // int N = std::stoi(argv[1]);
     int N = 1000;
 
     auto start = std::chrono::high_resolution_clock::now();
     for (int i=0; i<N; ++i){
-        // std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>> res = col->solveGradientAndHessian(all_d, all_q);
-        std::tuple<xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, xt::xarray<double>, 
-            xt::xarray<double>, xt::xarray<double>, xt::xarray<double>> res =col->getCBFConstraints(dq, 
-            all_Jacobian, all_d, all_q, all_dJdq, alpha0, gamma1, gamma2, compensation);
-        // std::cout << i << " " << std::get<0>(res) << std::endl;
+        std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>> res = col->solveGradientAndHessian(all_d, all_theta);
+        std::cout << i << " " << std::get<0>(res) << std::endl;
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> diff = end - start;

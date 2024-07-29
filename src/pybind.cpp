@@ -11,6 +11,11 @@
 #include "ellipsoidAndHyperplane3dPrb.hpp"
 #include "problem3dCollection.hpp"
 
+#include "problem2d.hpp"
+#include "ellipsoidAndLogSumExp2dPrb.hpp"
+#include "ellipsoidAndHyperplane2dPrb.hpp"
+#include "problem2dCollection.hpp"
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(HOCBFHelperPy, m) {
@@ -65,6 +70,57 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
                 if (t.size() != 2)
                     throw std::runtime_error("Invalid state!");
                 return std::make_shared<EllipsoidAndHyperplane3dPrb>(t[0].cast<std::shared_ptr<Ellipsoid3d>>(), t[1].cast<std::shared_ptr<Hyperplane3d>>());
+            }
+        ));
+
+    py::class_<Problem2d, std::shared_ptr<Problem2d>>(m, "Problem2d");
+
+    py::class_<Problem2dCollection, std::shared_ptr<Problem2dCollection>>(m, "Problem2dCollection")
+        .def(py::init<size_t>())
+        .def_readonly("n_problems", &Problem2dCollection::n_problems)
+        .def_readonly("n_threads", &Problem2dCollection::n_threads)
+        .def_readonly("frame_ids", &Problem2dCollection::frame_ids)
+        .def("addProblem", &Problem2dCollection::addProblem)
+        .def("waitAll", &Problem2dCollection::waitAll)
+        .def("solveGradientAndHessian", &Problem2dCollection::solveGradientAndHessian);
+        // .def("getCBFConstraints", &Problem2dCollection::getCBFConstraints)
+        // .def("getSmoothMinCBFConstraints", &Problem2dCollection::getSmoothMinCBFConstraints);
+
+    py::class_<EllipsoidAndLogSumExp2dPrb, Problem2d, std::shared_ptr<EllipsoidAndLogSumExp2dPrb>>(m, "EllipsoidAndLogSumExp2dPrb")
+        .def(py::init<std::shared_ptr<Ellipsoid2d>, std::shared_ptr<LogSumExp2d>, xt::xtensor<double, 2>>())
+        .def("solveSCSPrb", &EllipsoidAndLogSumExp2dPrb::solveSCSPrb)
+        .def("solve", &EllipsoidAndLogSumExp2dPrb::solve)
+        .def_readonly("dim_p", &EllipsoidAndLogSumExp2dPrb::dim_p_)
+        .def_readonly("n_exp_cone", &EllipsoidAndLogSumExp2dPrb::n_exp_cone_)
+        .def_readonly("A_scs", &EllipsoidAndLogSumExp2dPrb::A_scs_)
+        .def_readonly("b_scs", &EllipsoidAndLogSumExp2dPrb::b_scs_)
+        .def_readonly("p_sol", &EllipsoidAndLogSumExp2dPrb::p_sol_)
+        .def(py::pickle(
+            [](const EllipsoidAndLogSumExp2dPrb &p) {
+                return py::make_tuple(p.SF_rob_, p.SF_obs_, p.obs_characteristic_points_);
+            },
+            [](py::tuple t) {
+                if (t.size() != 3)
+                    throw std::runtime_error("Invalid state!");
+                return std::make_shared<EllipsoidAndLogSumExp2dPrb>(t[0].cast<std::shared_ptr<Ellipsoid2d>>(), t[1].cast<std::shared_ptr<LogSumExp2d>>(),
+                    t[2].cast<xt::xtensor<double, 2>>());
+            }
+        ));
+
+    py::class_<EllipsoidAndHyperplane2dPrb, Problem2d, std::shared_ptr<EllipsoidAndHyperplane2dPrb>>(m, "EllipsoidAndHyperplane2dPrb")
+        .def(py::init<std::shared_ptr<Ellipsoid2d>, std::shared_ptr<Hyperplane2d>>())
+        .def("solve", &EllipsoidAndHyperplane2dPrb::solve)
+        .def_readonly("SF_rob", &EllipsoidAndHyperplane2dPrb::SF_rob_)
+        .def_readonly("SF_obs", &EllipsoidAndHyperplane2dPrb::SF_obs_)
+        .def_readonly("p_sol", &EllipsoidAndHyperplane2dPrb::p_sol_)
+        .def(py::pickle(
+            [](const EllipsoidAndHyperplane2dPrb &p) {
+                return py::make_tuple(p.SF_rob_, p.SF_obs_);
+            },
+            [](py::tuple t) {
+                if (t.size() != 2)
+                    throw std::runtime_error("Invalid state!");
+                return std::make_shared<EllipsoidAndHyperplane2dPrb>(t[0].cast<std::shared_ptr<Ellipsoid2d>>(), t[1].cast<std::shared_ptr<Hyperplane2d>>());
             }
         ));
 
