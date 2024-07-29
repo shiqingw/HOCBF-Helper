@@ -31,12 +31,19 @@ ThreadPool::~ThreadPool() {
         stop = true;
     }
     condition.notify_all();
-    for (std::thread &worker : workers) worker.join();
+    for (std::thread &worker : workers){
+        if (worker.joinable()) {
+            worker.join();
+        }
+    }
 }
 
 void ThreadPool::enqueue(std::function<void()> task) {
     {
         std::unique_lock<std::mutex> lock(queue_mutex);
+        if (stop) {
+            throw std::runtime_error("Cannot enqueue on stopped ThreadPool");
+        }
         tasks.push(std::move(task));
     }
     condition.notify_one();
@@ -45,4 +52,17 @@ void ThreadPool::enqueue(std::function<void()> task) {
 void ThreadPool::wait() {
     std::unique_lock<std::mutex> lock(queue_mutex);
     condition.wait(lock, [this] { return this->tasks.empty() && this->working_threads == 0; });
+}
+
+void ThreadPool::stopAll() {
+    {
+        std::unique_lock<std::mutex> lock(queue_mutex);
+        stop = true;
+    }
+    condition.notify_all();
+    for (std::thread &worker : workers){
+        if (worker.joinable()) {
+            worker.join();
+        }
+    }
 }

@@ -29,6 +29,7 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
         .def_readonly("frame_ids", &Problem3dCollection::frame_ids)
         .def("addProblem", &Problem3dCollection::addProblem)
         .def("waitAll", &Problem3dCollection::waitAll)
+        .def("stopAll", &Problem3dCollection::stopAll)
         .def("solveGradientAndHessian", &Problem3dCollection::solveGradientAndHessian)
         .def("getCBFConstraints", &Problem3dCollection::getCBFConstraints)
         .def("getSmoothMinCBFConstraints", &Problem3dCollection::getSmoothMinCBFConstraints);
@@ -82,6 +83,7 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
         .def_readonly("frame_ids", &Problem2dCollection::frame_ids)
         .def("addProblem", &Problem2dCollection::addProblem)
         .def("waitAll", &Problem2dCollection::waitAll)
+        .def("stopAll", &Problem2dCollection::stopAll)
         .def("solveGradientAndHessian", &Problem2dCollection::solveGradientAndHessian);
         // .def("getCBFConstraints", &Problem2dCollection::getCBFConstraints)
         // .def("getSmoothMinCBFConstraints", &Problem2dCollection::getSmoothMinCBFConstraints);

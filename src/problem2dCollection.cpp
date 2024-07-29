@@ -18,6 +18,10 @@ void Problem2dCollection::waitAll() {
     thread_pool.wait();
 }
 
+void Problem2dCollection::stopAll() {
+    thread_pool.stopAll();
+}
+
 std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>> Problem2dCollection::solveGradientAndHessian(
         const xt::xtensor<double, 2>& all_d, const xt::xtensor<double, 1>& all_theta) {
 

@@ -29,6 +29,8 @@ public:
 
     void waitAll();
 
+    void stopAll();
+
     std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>> solveGradientAndHessian(
         const xt::xtensor<double, 2>& all_d, const xt::xtensor<double, 2>& all_q);
 

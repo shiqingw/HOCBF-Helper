@@ -3,6 +3,7 @@
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xio.hpp>
 #include <chrono>
+#include <csignal>
 
 #include "ellipsoidAndLogSumExp2dPrb.hpp"
 #include "ellipsoidAndHyperplane2dPrb.hpp"
@@ -11,8 +12,30 @@
 #include "scalingFunctionsHelper/logSumExp2d.hpp"
 #include "scalingFunctionsHelper/hyperplane2d.hpp"
 
-// int main(int argc, char* argv[]) {
+std::shared_ptr<Problem2dCollection> col;
+
+void (*oldHandler)(int) = nullptr;
+
+void signalHandler(int signum) {
+    std::cout << "\nInterrupt signal (" << signum << ") received. Stopping all problems." << std::endl;
+    
+    // Call your cleanup code here
+    if (col) {
+        col->stopAll();
+    }
+
+    // If there was an old signal handler, call it
+    if (oldHandler) {
+        oldHandler(signum);
+    }
+
+    // Exit or do other final cleanup
+    std::exit(signum);
+}
+
 int main() {
+    oldHandler = std::signal(SIGINT, signalHandler);
+
     xt::xtensor<double, 2> Q_d = xt::eye<double>(2);
     xt::xtensor<double, 1> mu_d {4, 1};
 
@@ -37,7 +60,7 @@ int main() {
     int n_repeat = 10;
     int n_problems = 2*n_repeat;
     int n_threads = 9;
-    std::shared_ptr<Problem2dCollection> col = std::make_shared<Problem2dCollection>(n_threads);
+    col = std::make_shared<Problem2dCollection>(n_threads);
     for (int i=0; i<n_repeat; ++i){
         std::shared_ptr<EllipsoidAndLogSumExp2dPrb> prb = std::make_shared<EllipsoidAndLogSumExp2dPrb>(SF_rob, SF_obs, vertices);
         col->addProblem(prb, i);
@@ -56,12 +79,13 @@ int main() {
     xt::xtensor<double, 1> all_theta = xt::zeros<double>({n_problems});
 
     // int N = std::stoi(argv[1]);
-    int N = 1000;
+    int N = 10000;
 
     auto start = std::chrono::high_resolution_clock::now();
     for (int i=0; i<N; ++i){
+        std::cout << i << " " << col->thread_pool.stop << std::endl;
         std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>> res = col->solveGradientAndHessian(all_d, all_theta);
-        std::cout << i << " " << std::get<0>(res) << std::endl;
+        // std::cout << i << " " << std::get<0>(res) << std::endl;
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> diff = end - start;
