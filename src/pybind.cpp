@@ -84,8 +84,8 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
         .def("addProblem", &Problem2dCollection::addProblem)
         .def("waitAll", &Problem2dCollection::waitAll)
         .def("stopAll", &Problem2dCollection::stopAll)
-        .def("solveGradientAndHessian", &Problem2dCollection::solveGradientAndHessian);
-        // .def("getCBFConstraints", &Problem2dCollection::getCBFConstraints)
+        .def("solveGradientAndHessian", &Problem2dCollection::solveGradientAndHessian)
+        .def("getCBFConstraints", &Problem2dCollection::getCBFConstraints);
         // .def("getSmoothMinCBFConstraints", &Problem2dCollection::getSmoothMinCBFConstraints);
 
     py::class_<EllipsoidAndLogSumExp2dPrb, Problem2d, std::shared_ptr<EllipsoidAndLogSumExp2dPrb>>(m, "EllipsoidAndLogSumExp2dPrb")

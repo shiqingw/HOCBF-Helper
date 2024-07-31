@@ -7,6 +7,8 @@
 #include <xtensor/xtensor.hpp>
 #include <xtensor-python/pyarray.hpp>
 #include <xtensor/xnoalias.hpp>
+#include <xtensor/xadapt.hpp>
+#include <xtensor/xio.hpp>
 
 #include "threadPool.hpp"
 #include "problem2d.hpp"
@@ -33,6 +35,12 @@ public:
 
     std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>> solveGradientAndHessian(
         const xt::xtensor<double, 2>& all_d, const xt::xtensor<double, 1>& all_theta);
+
+    std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
+        xt::xtensor<double, 2>, xt::xtensor<double, 1>, xt::xtensor<double, 1>> getCBFConstraints(const xt::xtensor<double, 1>& dq,
+        const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 1>& all_theta, const xt::xtensor<double, 3>& all_Jacobian, 
+        const xt::xtensor<double, 2>& all_dJdq, double alpha0, double gamma1, double gamma2, double compensation);
+
 
 };
 
