@@ -35,12 +35,37 @@ public:
 
     std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>> solveGradientAndHessian(
         const xt::xtensor<double, 2>& all_d, const xt::xtensor<double, 1>& all_theta);
+    
+    std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
+        xt::xtensor<double, 2>, xt::xtensor<double, 1>, xt::xtensor<double, 1>> getCBFConstraints(
+        const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 1>& all_theta, const xt::xtensor<double, 2>& all_dx,
+        double alpha0, double gamma1, double gamma2, double compensation);
+    
+    std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
+        xt::xtensor<double, 2>, xt::xtensor<double, 1>, xt::xtensor<double, 1>> getCBFConstraintsFixedOrientation(
+        const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 1>& all_theta, const xt::xtensor<double, 2>& all_dx,
+        double alpha0, double gamma1, double gamma2, double compensation);
+    
+    std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
+        xt::xtensor<double, 1>, xt::xtensor<double, 2>> getSmoothMinCBFConstraints(
+        const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 1>& all_theta, const xt::xtensor<double, 2>& all_dx,
+        double alpha0);
 
     std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
-        xt::xtensor<double, 2>, xt::xtensor<double, 1>, xt::xtensor<double, 1>> getCBFConstraints(const xt::xtensor<double, 1>& dq,
-        const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 1>& all_theta, const xt::xtensor<double, 3>& all_Jacobian, 
-        const xt::xtensor<double, 2>& all_dJdq, double alpha0, double gamma1, double gamma2, double compensation);
+        xt::xtensor<double, 1>, xt::xtensor<double, 2>> getSmoothMinCBFConstraintsFixedOrientation(
+        const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 1>& all_theta, const xt::xtensor<double, 2>& all_dx,
+        double alpha0);
 
+
+    // std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
+    //     xt::xtensor<double, 2>, xt::xtensor<double, 1>, xt::xtensor<double, 1>> getCBFConstraintsOld(const xt::xtensor<double, 1>& dq,
+    //     const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 1>& all_theta, const xt::xtensor<double, 3>& all_Jacobian, 
+    //     const xt::xtensor<double, 2>& all_dJdq, double alpha0, double gamma1, double gamma2, double compensation);
+
+    // std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
+    //     xt::xtensor<double, 2>, xt::xtensor<double, 1>, xt::xtensor<double, 1>> getCBFConstraintsFixedOrientationOld(const xt::xtensor<double, 1>& dq,
+    //     const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 1>& all_theta, const xt::xtensor<double, 3>& all_Jacobian, 
+    //     const xt::xtensor<double, 2>& all_dJdq, double alpha0, double gamma1, double gamma2, double compensation);
 
 };
 

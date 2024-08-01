@@ -85,8 +85,10 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
         .def("waitAll", &Problem2dCollection::waitAll)
         .def("stopAll", &Problem2dCollection::stopAll)
         .def("solveGradientAndHessian", &Problem2dCollection::solveGradientAndHessian)
-        .def("getCBFConstraints", &Problem2dCollection::getCBFConstraints);
-        // .def("getSmoothMinCBFConstraints", &Problem2dCollection::getSmoothMinCBFConstraints);
+        .def("getCBFConstraints", &Problem2dCollection::getCBFConstraints)
+        .def("getCBFConstraintsFixedOrientation", &Problem2dCollection::getCBFConstraintsFixedOrientation)
+        .def("getSmoothMinCBFConstraints", &Problem2dCollection::getSmoothMinCBFConstraints)
+        .def("getSmoothMinCBFConstraintsFixedOrientation", &Problem2dCollection::getSmoothMinCBFConstraintsFixedOrientation);
 
     py::class_<EllipsoidAndLogSumExp2dPrb, Problem2d, std::shared_ptr<EllipsoidAndLogSumExp2dPrb>>(m, "EllipsoidAndLogSumExp2dPrb")
         .def(py::init<std::shared_ptr<Ellipsoid2d>, std::shared_ptr<LogSumExp2d>, xt::xtensor<double, 2>>())
