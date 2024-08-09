@@ -31,10 +31,11 @@ std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3
 
     for (int i = 0; i < n_problems; i++) {
         std::shared_ptr<Problem3d> problem = problems[i];
-        thread_pool.enqueue([i, problem, &all_alpha, &all_alpha_dx, &all_alpha_dxdx, &all_d, &all_q] {
+        int frame_id = frame_ids[i];
+        thread_pool.enqueue([i, frame_id, problem, &all_alpha, &all_alpha_dx, &all_alpha_dxdx, &all_d, &all_q] {
             try {
-                xt::xtensor<double, 1> d = xt::view(all_d, i, xt::all()); // shape (3)
-                xt::xtensor<double, 1> q = xt::view(all_q, i, xt::all()); // shape (7)
+                xt::xtensor<double, 1> d = xt::view(all_d, frame_id, xt::all()); // shape (3)
+                xt::xtensor<double, 1> q = xt::view(all_q, frame_id, xt::all()); // shape (7)
 
                 double alpha;
                 xt::xtensor<double, 1> alpha_dx;

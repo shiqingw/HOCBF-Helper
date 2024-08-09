@@ -27,8 +27,10 @@ if(BUILD_PYTHON_MODULE)
         src/threadPool.cpp
         src/problem3d.cpp
         src/problem3dCollection.cpp
+        src/problem3dCollectionMovingObstacle.cpp
         src/ellipsoidAndLogSumExp3dPrb.cpp
         src/ellipsoidAndHyperplane3dPrb.cpp
+        src/ellipsoidAndEllipsoid3dPrb.cpp
         src/problem2d.cpp
         src/problem2dCollection.cpp
         src/ellipsoidAndLogSumExp2dPrb.cpp
@@ -76,8 +78,10 @@ else()
         src/utils.cpp
         src/problem3d.cpp
         src/problem3dCollection.cpp
+        src/problem3dCollectionMovingObstacle.cpp
         src/ellipsoidAndLogSumExp3dPrb.cpp
         src/ellipsoidAndHyperplane3dPrb.cpp
+        src/ellipsoidAndEllipsoid3dPrb.cpp
         src/problem2d.cpp
         src/problem2dCollection.cpp
         src/ellipsoidAndLogSumExp2dPrb.cpp

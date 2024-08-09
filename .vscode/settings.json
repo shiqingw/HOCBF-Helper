@@ -69,7 +69,8 @@
         "forward_list": "cpp",
         "list": "cpp",
         "set": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "memory": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang++"
 }

@@ -45,7 +45,13 @@ public:
 
     std::tuple<int, xt::xtensor<double, 1>> solveSCSPrb(const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q);
 
-    std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> solve(const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q) override;
+    std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> solve(const xt::xtensor<double, 1>& d,
+        const xt::xtensor<double, 1>& q) override;
+    
+    std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> solveMovingObstacle(
+        const xt::xtensor<double, 1>& d1, const xt::xtensor<double, 1>& q1, const xt::xtensor<double, 1>& d2,
+        const xt::xtensor<double, 1>& q2) override;
+
 
 };
 

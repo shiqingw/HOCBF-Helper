@@ -9,6 +9,7 @@
 #include "problem3d.hpp"
 #include "ellipsoidAndLogSumExp3dPrb.hpp"
 #include "ellipsoidAndHyperplane3dPrb.hpp"
+#include "ellipsoidAndEllipsoid3dPrb.hpp"
 #include "problem3dCollection.hpp"
 
 #include "problem2d.hpp"
@@ -40,6 +41,7 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
         .def(py::init<std::shared_ptr<Ellipsoid3d>, std::shared_ptr<LogSumExp3d>, xt::xtensor<double, 2>>())
         .def("solveSCSPrb", &EllipsoidAndLogSumExp3dPrb::solveSCSPrb)
         .def("solve", &EllipsoidAndLogSumExp3dPrb::solve)
+        .def("solveMovingObstacle", &EllipsoidAndLogSumExp3dPrb::solveMovingObstacle)
         .def_readonly("dim_p", &EllipsoidAndLogSumExp3dPrb::dim_p_)
         .def_readonly("n_exp_cone", &EllipsoidAndLogSumExp3dPrb::n_exp_cone_)
         .def_readonly("A_scs", &EllipsoidAndLogSumExp3dPrb::A_scs_)
@@ -57,9 +59,28 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
             }
         ));
     
+    py::class_<EllipsoidAndEllipsoid3dPrb, Problem3d, std::shared_ptr<EllipsoidAndEllipsoid3dPrb>>(m, "EllipsoidAndEllipsoid3dPrb")
+        .def(py::init<std::shared_ptr<Ellipsoid3d>, std::shared_ptr<Ellipsoid3d>>())
+        .def("solve", &EllipsoidAndEllipsoid3dPrb::solve)
+        .def("solveMovingObstacle", &EllipsoidAndEllipsoid3dPrb::solveMovingObstacle)
+        .def_readonly("SF_rob", &EllipsoidAndEllipsoid3dPrb::SF_rob_)
+        .def_readonly("SF_obs", &EllipsoidAndEllipsoid3dPrb::SF_obs_)
+        .def_readonly("p_sol", &EllipsoidAndEllipsoid3dPrb::p_sol_)
+        .def(py::pickle(
+            [](const EllipsoidAndEllipsoid3dPrb &p) {
+                return py::make_tuple(p.SF_rob_, p.SF_obs_);
+            },
+            [](py::tuple t) {
+                if (t.size() != 2)
+                    throw std::runtime_error("Invalid state!");
+                return std::make_shared<EllipsoidAndEllipsoid3dPrb>(t[0].cast<std::shared_ptr<Ellipsoid3d>>(), t[1].cast<std::shared_ptr<Ellipsoid3d>>());
+            }
+        ));
+    
     py::class_<EllipsoidAndHyperplane3dPrb, Problem3d, std::shared_ptr<EllipsoidAndHyperplane3dPrb>>(m, "EllipsoidAndHyperplane3dPrb")
         .def(py::init<std::shared_ptr<Ellipsoid3d>, std::shared_ptr<Hyperplane3d>>())
         .def("solve", &EllipsoidAndHyperplane3dPrb::solve)
+        .def("solveMovingObstacle", &EllipsoidAndHyperplane3dPrb::solveMovingObstacle)
         .def_readonly("SF_rob", &EllipsoidAndHyperplane3dPrb::SF_rob_)
         .def_readonly("SF_obs", &EllipsoidAndHyperplane3dPrb::SF_obs_)
         .def_readonly("p_sol", &EllipsoidAndHyperplane3dPrb::p_sol_)
