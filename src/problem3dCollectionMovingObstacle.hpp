@@ -36,10 +36,14 @@ public:
         const xt::xtensor<double, 2>& all_d_rob, const xt::xtensor<double, 2>& all_q_rob,
         const xt::xtensor<double, 2>& all_d_obs, const xt::xtensor<double, 2>& all_q_obs);
 
-    std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
-        xt::xtensor<double, 2>, xt::xtensor<double, 1>, xt::xtensor<double, 1>> getCBFConstraints(const xt::xtensor<double, 1>& dq,
-        const xt::xtensor<double, 2>& all_postion, const xt::xtensor<double, 2>& all_quat, const xt::xtensor<double, 3>& all_Jacobian, 
-        const xt::xtensor<double, 2>& all_dJdq, double alpha0, double gamma1, double gamma2, double compensation);
+    std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 1>, 
+    xt::xtensor<double, 1>> getCBFConstraints(
+    const xt::xtensor<double, 1>& dq_rob, const xt::xtensor<double, 2>& all_postion_rob, const xt::xtensor<double, 2>& all_quat_rob, 
+    const xt::xtensor<double, 3>& all_Jacobian_rob, const xt::xtensor<double, 2>& all_dJdq_rob,
+    const xt::xtensor<double, 2>& all_position_obs, const xt::xtensor<double, 2>& all_quat_obs,
+    const xt::xtensor<double, 2>& all_velocity_obs, const xt::xtensor<double, 2>& all_omega_obs,
+    const xt::xtensor<double, 2>& all_velocity_dot_obs, const xt::xtensor<double, 2>& all_omega_dot_obs,
+    double alpha0, double gamma1, double gamma2, double compensation);
 
     // std::tuple<xt::xtensor<double, 1>, xt::xtensor<double, 2>, xt::xtensor<double, 3>, xt::xtensor<double, 1>, 
     //     xt::xtensor<double, 1>, xt::xtensor<double, 2>> getSmoothMinCBFConstraints(const xt::xtensor<double, 1>& dq,

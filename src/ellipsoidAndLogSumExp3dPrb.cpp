@@ -1,5 +1,32 @@
 #include "ellipsoidAndLogSumExp3dPrb.hpp"
 
+void EllipsoidAndLogSumExp3dPrb::validateProblem(int rob_frame_id, int obs_frame_id){
+
+    if (SF_rob_ == nullptr){
+        throw std::invalid_argument("SF_rob_ is nullptr!");
+    } 
+
+    if (SF_rob_->isMoving == false){
+        throw std::invalid_argument("SF_rob_ is not moving!");
+    }
+
+    if (SF_rob_->isMoving == true and rob_frame_id < 0){
+        throw std::invalid_argument("SF_rob_ is moving but given rob_frame_id < 0!");
+    }
+
+    if (SF_obs_ == nullptr){
+        throw std::invalid_argument("SF_obs_ is nullptr!");
+    }
+
+    if (SF_obs_->isMoving == false && obs_frame_id >= 0){
+        std::invalid_argument("SF_obs_ is not moving but given obs_frame_id >= 0!");
+    }
+
+    if (SF_obs_->isMoving == true && obs_frame_id < 0){
+        std::invalid_argument("SF_obs_ is moving but given obs_frame_id < 0!");
+    }
+}
+
 EllipsoidAndLogSumExp3dPrb::EllipsoidAndLogSumExp3dPrb(std::shared_ptr<Ellipsoid3d> SF1, 
     std::shared_ptr<LogSumExp3d> SF2, const xt::xtensor<double, 2>& obs_characteristic_points) :
     SF_rob_(SF1), SF_obs_(SF2), obs_characteristic_points_(obs_characteristic_points) {

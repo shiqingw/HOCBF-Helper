@@ -1,5 +1,32 @@
 #include "ellipsoidAndHyperplane3dPrb.hpp"
 
+void EllipsoidAndHyperplane3dPrb::validateProblem(int rob_frame_id, int obs_frame_id){
+
+    if (SF_rob_ == nullptr){
+        throw std::invalid_argument("SF_rob_ is nullptr!");
+    } 
+
+    if (SF_rob_->isMoving == false){
+        throw std::invalid_argument("SF_rob_ is not moving!");
+    }
+
+    if (SF_rob_->isMoving == true and rob_frame_id < 0){
+        throw std::invalid_argument("SF_rob_ is moving but given rob_frame_id < 0!");
+    }
+
+    if (SF_obs_ == nullptr){
+        throw std::invalid_argument("SF_obs_ is nullptr!");
+    }
+
+    if (SF_obs_->isMoving == false && obs_frame_id >= 0){
+        std::invalid_argument("SF_obs_ is not moving but given obs_frame_id >= 0!");
+    }
+
+    if (SF_obs_->isMoving == true && obs_frame_id < 0){
+        std::invalid_argument("SF_obs_ is moving but given obs_frame_id < 0!");
+    }
+}
+
 std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> EllipsoidAndHyperplane3dPrb::solve(
     const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q) {
 

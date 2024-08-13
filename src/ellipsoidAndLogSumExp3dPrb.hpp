@@ -43,6 +43,8 @@ public:
 
     ~EllipsoidAndLogSumExp3dPrb();
 
+    void validateProblem(int rob_frame_id, int obs_frame_id) override;
+
     std::tuple<int, xt::xtensor<double, 1>> solveSCSPrb(const xt::xtensor<double, 1>& d, const xt::xtensor<double, 1>& q);
 
     std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> solve(const xt::xtensor<double, 1>& d,

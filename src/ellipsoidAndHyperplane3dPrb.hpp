@@ -23,6 +23,8 @@ public:
 
     ~EllipsoidAndHyperplane3dPrb() = default;
 
+    void validateProblem(int rob_frame_id, int obs_frame_id) override;
+
     std::tuple<double, xt::xtensor<double, 1>, xt::xtensor<double, 2>> solve(const xt::xtensor<double, 1>& d, 
         const xt::xtensor<double, 1>& q) override;
     

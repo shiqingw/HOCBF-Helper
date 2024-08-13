@@ -11,6 +11,7 @@
 #include "ellipsoidAndHyperplane3dPrb.hpp"
 #include "ellipsoidAndEllipsoid3dPrb.hpp"
 #include "problem3dCollection.hpp"
+#include "problem3dCollectionMovingObstacle.hpp"
 
 #include "problem2d.hpp"
 #include "ellipsoidAndLogSumExp2dPrb.hpp"
@@ -34,6 +35,18 @@ PYBIND11_MODULE(HOCBFHelperPy, m) {
         .def("solveGradientAndHessian", &Problem3dCollection::solveGradientAndHessian)
         .def("getCBFConstraints", &Problem3dCollection::getCBFConstraints)
         .def("getSmoothMinCBFConstraints", &Problem3dCollection::getSmoothMinCBFConstraints);
+    
+    py::class_<Problem3dCollectionMovingObstacle, std::shared_ptr<Problem3dCollectionMovingObstacle>>(m, "Problem3dCollectionMovingObstacle")
+        .def(py::init<size_t>())
+        .def_readonly("n_problems", &Problem3dCollectionMovingObstacle::n_problems)
+        .def_readonly("n_threads", &Problem3dCollectionMovingObstacle::n_threads)
+        .def_readonly("frame_ids", &Problem3dCollectionMovingObstacle::rob_frame_ids)
+        .def_readonly("frame_ids", &Problem3dCollectionMovingObstacle::obs_frame_ids)
+        .def("addProblem", &Problem3dCollectionMovingObstacle::addProblem)
+        .def("waitAll", &Problem3dCollectionMovingObstacle::waitAll)
+        .def("stopAll", &Problem3dCollectionMovingObstacle::stopAll)
+        .def("solveGradientAndHessian", &Problem3dCollectionMovingObstacle::solveGradientAndHessian)
+        .def("getCBFConstraints", &Problem3dCollectionMovingObstacle::getCBFConstraints);
 
     py::class_<Problem3d, std::shared_ptr<Problem3d>>(m, "Problem3d");
 
