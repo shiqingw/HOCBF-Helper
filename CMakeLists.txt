@@ -5,6 +5,9 @@ project(HOCBFHelperPy VERSION 0.0.1)
 # set(CMAKE_BUILD_TYPE Debug)  # Enable debug symbols
 # set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address")
 
+# Add the cmake directory to the module path
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 find_package(OpenBLAS REQUIRED)
 find_package(Python REQUIRED COMPONENTS Interpreter Development NumPy)
 find_package(pybind11 REQUIRED CONFIG)
