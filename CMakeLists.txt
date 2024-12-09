@@ -112,6 +112,7 @@ else()
         # xtensor::use_xsimd # Do not use this, code gets slower
         xtensor-python
         Python::NumPy
+        Python::Python
         ${OpenBLAS_LIBRARIES}  # Use the variable set by find_package if available
         scs::scsdir
         scalingFunctionsHelper::scalingFunctionsHelper
